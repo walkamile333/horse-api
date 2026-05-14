@@ -1,40 +1,27 @@
-const fetch = require("node-fetch");
 const express = require("express");
-const cors = require("cors");
-
 const app = express();
-app.use(cors());
-
-const API_KEY = process.env.ODDS_API_KEY;
-
-let oldPrices = {};
 
 app.get("/", (req, res) => {
-  res.send("Horse odds tracker running");
+  res.send("Horse API is working");
 });
 
-app.get("/prices", async (req, res) => {
-  try {
-    const url =
-      `https://api.the-odds-api.com/v4/sports/upcoming/odds/?apiKey=${API_KEY}&regions=uk&markets=h2h&oddsFormat=decimal`;
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (!Array.isArray(data)) {
-      return res.status(500).json({
-        error: "Odds API did not return a race list",
-        details: data
-      });
+app.get("/prices", (req, res) => {
+  res.json([
+    {
+      horse: "Morshdi",
+      oldPrice: 6.5,
+      newPrice: 4.2,
+      movePercent: 35.38,
+      signal: "HEAVILY BACKED"
     }
+  ]);
+});
 
-    const tracked = [];
+const PORT = process.env.PORT || 10000;
 
-    data.forEach(event => {
-      event.bookmakers?.forEach(bookmaker => {
-        bookmaker.markets?.forEach(market => {
-          market.outcomes?.forEach(outcome => {
-            const horse = outcome.name;
+app.listen(PORT, () => {
+  console.log("Running on port " + PORT);
+});            const horse = outcome.name;
             const newPrice = outcome.price;
 
             const oldPrice = oldPrices[horse];
